@@ -69,4 +69,4 @@ q3_df = q2_df.withColumn('pr_repo_language_type',
                              (F.col('pr_repo_language') == 'R') | (F.col('pr_repo_language') == 'Jupyter Notebook') | (
                              F.col('pr_repo_language') == 'Julia'), F.lit('Data Science')).otherwise(F.lit(None))))))
 
-q3_df.show(20)
+q3_df.show(30)
