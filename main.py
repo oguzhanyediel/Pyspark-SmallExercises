@@ -20,7 +20,7 @@ spark = SparkSession.builder\
 	.getOrCreate()
 
 
-df = spark.read.json("/Users/oguzhanyediel/Desktop/air_desktop/CS_tazi.io/Pyspark-SmallExercises/2017-10-01-10.json")
+df = spark.read.json("~/Pyspark-SmallExercises/2017-10-01-10.json")
 
 logger.info("Let's take a look at the general schema.")
 df.printSchema()
