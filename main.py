@@ -6,7 +6,7 @@
 # extracts every events that has as type==PullRequestEvent
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql import functions as F
 from pyspark.sql.types import *
 import logging
 
@@ -41,11 +41,32 @@ q1_df.show(10)
 # payload.pull_request.head.repo.language as pr_repo_language
 
 q2_df = q1_df.select(
-	col("created_at"),
-	col("repo.name").alias("repo_name"), 
-	col("actor.login").alias("username"), 
-	col("payload.pull_request.user.login").alias("pr_username"), 
-	col("payload.pull_request.created_at").alias("pr_created_at"), 
-	col("payload.pull_request.head.repo.language").alias("pr_repo_language"))
+	F.col("created_at"),
+	F.col("repo.name").alias("repo_name"), 
+	F.col("actor.login").alias("username"), 
+	F.col("payload.pull_request.user.login").alias("pr_username"), 
+	F.col("payload.pull_request.created_at").alias("pr_created_at"), 
+	F.col("payload.pull_request.head.repo.language").alias("pr_repo_language"))
 
 q2_df.show(20)
+
+# Q3:
+# For each event, add another field, called pr_repo_language_type, based on the following criteria:
+# Procedural -> Basic, C
+# Object Oriented -> C#, C++, Java, Python,
+# Functional -> Lisp, Haskell, Scala
+# Data Science -> R, Jupyter Notebook, Julia
+# Others -> contains all the other languages that are not mention above
+
+q3_df = q2_df.withColumn('pr_repo_language_type',
+                         F.when((F.col('pr_repo_language') == 'Basic') | (F.col('pr_repo_language') == 'C'),
+                                F.lit('Procedural')).otherwise(F.when(
+                             (F.col('pr_repo_language') == 'C#') | (F.col('pr_repo_language') == 'C++') | (
+                             F.col('pr_repo_language') == 'Java') | (F.col('pr_repo_language') == 'Python'),
+                             F.lit('Object Oriented')).otherwise(F.when(
+                             (F.col('pr_repo_language') == 'Lisp') | (F.col('pr_repo_language') == 'Haskell') | (
+                             F.col('pr_repo_language') == 'Scala'), F.lit('Functional')).otherwise(F.when(
+                             (F.col('pr_repo_language') == 'R') | (F.col('pr_repo_language') == 'Jupyter Notebook') | (
+                             F.col('pr_repo_language') == 'Julia'), F.lit('Data Science')).otherwise(F.lit(None))))))
+
+q3_df.show(20)
